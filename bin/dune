@@ -1,0 +1,3 @@
+(executable
+  (name lwt_socks4)
+  (libraries socks4 lwt lwt.unix tls.lwt conduit-lwt-unix))
