@@ -1,5 +1,10 @@
 (library
   (name socks4)
-  (libraries cstruct ppx_cstruct lwt lwt.unix)
+  (modules socks4 socket)
+  (libraries cstruct ppx_cstruct lwt)
   (preprocess (pps ppx_cstruct)))
 
+(library
+  (name lwt_socks4_unix)
+  (modules lwt_socks4_unix)
+  (libraries socks4 lwt.unix))

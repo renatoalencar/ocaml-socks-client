@@ -6,6 +6,10 @@ type header = {
   ip: uint8_t [@len 4];
 } [@@big_endian]]
 
+type proxy = [ `SOCKS4 of (string * int)
+             | `SOCKS4a of (string * int)
+             | `NOPROXY ]
+
 module Request = struct
   type command = Connect | Bind
 
@@ -31,7 +35,7 @@ module Request = struct
   (* An IP address used for SOCKS4a requests *)
   let socks4a_ip = "\000\000\000\001"
 
-  let to_string req =
+  let to_cstruct req =
     let (ipaddress, is_domain_name) =
       match Socket.inet_aton req.addr with
       | Some ip -> (ip, false)
@@ -53,13 +57,16 @@ module Request = struct
     if is_domain_name then
       Cstruct.blit_from_string req.addr 0 buf 9 (String.length req.addr);
 
-    Cstruct.to_string buf
+    buf
+
+  let to_string req =
+    Cstruct.to_string @@ to_cstruct req
+
 end
 
 module Response = struct
   type code =
-    [
-    | `RequestGranted
+    [ `RequestGranted
     | `RequestFailed
     | `RequestRejectedIdentd
     | `UserIdNotMatching ]
@@ -74,6 +81,12 @@ module Response = struct
     | 92 -> `RequestRejectedIdentd
     | 93 -> `UserIdNotMatching
     | _  -> raise (Invalid_argument "Response.code_of_int")
+
+  let string_of_code = function
+    | `RequestGranted -> "RequestGranted"
+    | `RequestFailed -> "RequestFailed"
+    | `RequestRejectedIdentd -> "RequestRejectedIdentd"
+    | `UserIdNotMatching -> "UserIdNotMatching"
 
   let of_cstruct cstruct =
     let () =
