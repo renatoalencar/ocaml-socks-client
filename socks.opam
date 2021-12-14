@@ -15,5 +15,8 @@ depends: [
   "lwt"
   "dune"
   "alcotest" {with-test}
+
+  # should be temporary
+  "ca-certs"
 ]
 build: [ "dune" "build" "-p" name "-j" jobs ]
