@@ -9,5 +9,11 @@ license: ""
 homepage: ""
 bug-reports: ""
 dev-repo: ""
-depends: [ "cstruct" "ppx_cstruct" "lwt" ]
+depends: [
+  "cstruct"
+  "ppx_cstruct"
+  "lwt"
+  "dune"
+  "alcotest" {with-test}
+]
 build: [ "dune" "build" "-p" name "-j" jobs ]
