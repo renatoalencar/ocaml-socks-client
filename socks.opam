@@ -18,5 +18,6 @@ depends: [
 
   # should be temporary
   "ca-certs"
+  "tls"
 ]
 build: [ "dune" "build" "-p" name "-j" jobs ]
