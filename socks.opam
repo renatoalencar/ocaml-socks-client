@@ -1,0 +1,13 @@
+opam-version: "2.0"
+name: "socks"
+version: "0.0.1"
+synopsis: "One-line description"
+description: ""
+maintainer: "Name <email>"
+authors: "Name <email>"
+license: ""
+homepage: ""
+bug-reports: ""
+dev-repo: ""
+depends: [ "cstruct" "ppx_cstruct" "lwt" ]
+build: [ "dune" "build" "-p" name "-j" jobs ]
