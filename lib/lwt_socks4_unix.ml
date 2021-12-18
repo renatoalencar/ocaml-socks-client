@@ -2,37 +2,16 @@ open Lwt.Infix
 
 let (let*) a f = a >>= f
 
-let validate_ip_address ip =
-  let octets = String.split_on_char '.' ip in
-  List.length octets = 8
-  && (List.for_all ((>) 256) @@ List.map int_of_string octets)
-
-let connect fd sockaddr =
+let connect fd addr port =
+  let sockaddr = Unix.(ADDR_INET (inet_addr_of_string addr, port)) in
   Lwt_io.open_connection ~fd sockaddr
 
-let resolve_addr hostname port =
-  let rec find_addr_inet (info : Unix.addr_info list) =
-    match info with
-    | [] -> failwith "Address not found"
-    | { ai_addr = Unix.ADDR_INET (addr, _) ; _ } :: _ ->
-       Unix.ADDR_INET (addr, port)
-    | rest -> find_addr_inet rest
-  in
-  find_addr_inet (Unix.(getaddrinfo hostname "" [ AI_FAMILY PF_INET ]))
-
-let resolve_ip_addr hostname port =
-  match resolve_addr hostname port with
-  | Unix.ADDR_INET (inet, _) -> Unix.string_of_inet_addr inet
-  | _ -> assert false
-
-let acquire proxy_addr proxy_port addr port =
-  let sockaddr = Unix.(ADDR_INET (inet_addr_of_string proxy_addr, proxy_port)) in
+let acquire command proxy_addr proxy_port  =
   let fd = Lwt_unix.(socket PF_INET SOCK_STREAM 0) in
-
-  let* (input, output) = connect fd sockaddr in
+  let* (input, output) = connect fd proxy_addr proxy_port in
 
   let* () =
-    Socks4.Request.connect addr port
+    command
     |> Socks4.Request.to_string
     |> Lwt_io.write output
   in
@@ -41,39 +20,50 @@ let acquire proxy_addr proxy_port addr port =
   >|= Socks4.Response.of_string
   >|= fun response ->
   match response.Socks4.Response.code with
-  | `RequestGranted -> Ok fd
+  | `RequestGranted -> Ok (fd, Some response)
   | code -> Error (Socks4.Response.string_of_code code)
 
-let acquire_socks4 proxy hostname port =
-  let hostname = 
-    if validate_ip_address hostname then
-      hostname
-    else
-      resolve_ip_addr hostname port
+let acquire_socks4 command proxy_addr proxy_port hostname port =
+  let open Lwt_result.Infix in
+  let address =
+    hostname
+    |> Ipaddr.V4.of_string
+    |> Result.map (fun ip -> `IPv4 ip)
+    |> Result.map_error (function `Msg msg -> msg)
+    |> Lwt_result.lift
   in
+  address >>= fun address ->
+  let request = Socks4.Request.make command address port in
+  acquire request proxy_addr proxy_port
 
-  let (proxy_addr, proxy_port) =
-    match proxy with
-    | `SOCKS4 proxy -> proxy
-    | _ -> assert false
+let acquire_socks4a command proxy_addr proxy_port hostname port =
+  let addr =
+    match Ipaddr.V4.of_string hostname with
+    | Ok ip -> `IPv4 ip
+    | Error _ -> `Domain hostname
   in
-  acquire proxy_addr proxy_port hostname port
+  let command = Socks4.Request.make command addr port in
+  acquire command proxy_addr proxy_port
 
-let acquire_socks4a proxy hostname port =
-  let (proxy_addr, proxy_port) =
-    match proxy with
-    | `SOCKS4a proxy -> proxy
-    | _ -> assert false
-  in
-  acquire proxy_addr proxy_port hostname port
-
-let acquire_no_proxy hostname port =
+let acquire_no_proxy addr port =
   let fd = Lwt_unix.(socket PF_INET SOCK_STREAM 0) in
-  let addr = resolve_addr hostname port in
-  connect fd addr >|= fun _ -> Ok fd
+  connect fd addr port >|= fun _ -> Ok (fd, None)
 
-let acquire t hostname port =
-  match t with
-  | `SOCKS4 _ as proxy -> acquire_socks4 proxy hostname port
-  | `SOCKS4a _ as proxy -> acquire_socks4a proxy hostname port
-  | `NOPROXY -> acquire_no_proxy hostname port
+let connect ~proxy:t hostname port =
+  let response =
+    match t with
+    | `SOCKS4 (proxy_addr, proxy_port) -> acquire_socks4 Socks4.Request.Connect proxy_addr proxy_port hostname port
+    | `SOCKS4a (proxy_addr, proxy_port) -> acquire_socks4a Socks4.Request.Connect proxy_addr proxy_port hostname port
+    | `NOPROXY -> acquire_no_proxy hostname port
+  in
+  Lwt_result.map (fun (fd, _) -> fd) response
+
+(* Bind is supposed to work, but is not exposed yet *)
+let bind ~proxy:t hostname port =
+  let response =
+    match t with
+    | `SOCKS4 (proxy_addr, proxy_port) -> acquire_socks4 Socks4.Request.Bind proxy_addr proxy_port hostname port
+    | `SOCKS4a (proxy_addr, proxy_port) -> acquire_socks4a Socks4.Request.Bind proxy_addr proxy_port hostname port
+    | `NOPROXY -> failwith "Bind does not support NOPROXY"
+  in
+  Lwt_result.map (fun (fd, res) -> (fd, Option.get res)) response

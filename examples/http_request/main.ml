@@ -27,16 +27,11 @@ let connection_handler hostname (input, output) =
   Lwt.return @@ print_endline response
 
 let domain_name name =
-  let speak_ok_or_die result = (* https://youtu.be/Cuz3t3eUqVs *)
-    match result with
-    | Ok value -> value
-    | Error (`Msg error) -> failwith error
-  in
   name
   |> Domain_name.of_string
-  |> speak_ok_or_die
+  |> Result.get_ok
   |> Domain_name.host
-  |> speak_ok_or_die
+  |> Result.get_ok
 
 let main hostname =
   let target = hostname in
@@ -52,7 +47,7 @@ let main hostname =
     print_endline "Acquiring proxy";
     let proxy = `SOCKS4a ("127.0.0.1", 9050) in
     let* fd =
-      Lwt_socks4_unix.acquire proxy target port >|= fun result ->
+      Lwt_socks4_unix.connect ~proxy target port >|= fun result ->
       match result with
       | Ok fd -> fd
       | Error msg -> failwith msg

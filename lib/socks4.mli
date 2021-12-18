@@ -29,26 +29,28 @@ type proxy = [ `SOCKS4 of (string * int)
 module Request : sig
   type t
 
+  type addr = [ `IPv4 of Ipaddr.V4.t | `Domain of string ]
+
   type command = Connect | Bind
   (** Which operation request to the server *)
 
-  val make : command -> string -> int -> t
-  (** [make command hostname port] creates a request of operation [command]
-      to [hostname] on [port]. *)
+  val make : command -> addr -> int -> t
+  (** [make command addr port] creates a request of operation [command]
+      to [addr] on [port]. *)
 
-  val connect : string -> int -> t
-  (** [connect hostname port] creates a [Connect] request to [hostname] on
+  val connect : addr -> int -> t
+  (** [connect addr port] creates a [Connect] request to [addr] on
       [port], which establishes a connection to the proxy and after initializing
       it forwards data between the two peers. *)
 
-  val bind : string -> int -> t
-  (** [bind hostname port] creates a [Bind] request that listens to connections
-      from [hostname].
+  val bind : addr -> int -> t
+  (** [bind addr port] creates a [Bind] request that listens to connections
+      from [addr].
 
       [Bind] exists in order to support such sequences where the client after
       making a connection needs to establish an inbound connection from the
       application server. It should be used after a previous [Connect] operation
-      has been made, the [hostname] and [port] parameters must be the same
+      has been made, the [addr] and [port] parameters must be the same
       used before to the [Connect] request. The proxy should return a response
       with an IP address and a port number that it is accepting connections.
       Since the proxy may be multi-host, the IP address may not be the same
@@ -71,7 +73,7 @@ module Response : sig
   (** The response code from the request previously submitted. *)
 
   type t = { code: code
-           ; ip: string
+           ; ip: Ipaddr.V4.t
            ; port: int }
   (** Actual response structure.
 

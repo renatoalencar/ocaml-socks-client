@@ -3,7 +3,7 @@ type header = {
   version: uint8_t;
   command: uint8_t;
   port: uint16_t;
-  ip: uint8_t [@len 4];
+  ip: uint32_t;
 } [@@big_endian]]
 
 type proxy = [ `SOCKS4 of (string * int)
@@ -13,8 +13,10 @@ type proxy = [ `SOCKS4 of (string * int)
 module Request = struct
   type command = Connect | Bind
 
+  type addr = [ `IPv4 of Ipaddr.V4.t | `Domain of string ]
+
   type t = { command: command
-           ; addr: string
+           ; addr: addr
            ; port: int }
 
   let make command addr port =
@@ -33,29 +35,31 @@ module Request = struct
   | Bind -> 2
 
   (* An IP address used for SOCKS4a requests *)
-  let socks4a_ip = "\000\000\000\001"
+  let socks4a_ip = Ipaddr.V4.of_string_exn "0.0.0.1"
 
   let to_cstruct req =
-    let (ipaddress, is_domain_name) =
-      match Socket.inet_aton req.addr with
-      | Some ip -> (ip, false)
-      | None -> (socks4a_ip, true)
+    let (addr, domain_name) =
+      match req.addr with
+      | `IPv4 ip -> (ip, None)
+      | `Domain name -> (socks4a_ip, Some name)
     in
     let buf =
       let bufsize =
-        9 + if is_domain_name then
-              String.length req.addr + 1
-            else 0
+        9 + Option.(
+          value ~default:0
+          @@ map (fun d -> String.length d + 1) domain_name)
       in
       Cstruct.create bufsize
     in
     set_header_version buf 4;
     set_header_command buf (command_to_int req.command);
     set_header_port buf req.port;
-    set_header_ip ipaddress 0 buf;
+    set_header_ip buf (Ipaddr.V4.to_int32 addr);
 
-    if is_domain_name then
-      Cstruct.blit_from_string req.addr 0 buf 9 (String.length req.addr);
+    Option.iter
+      (fun name ->
+        Cstruct.blit_from_string name 0 buf 9 (String.length name))
+      domain_name;
 
     buf
 
@@ -72,7 +76,7 @@ module Response = struct
     | `UserIdNotMatching ]
  
   type t = { code: code
-           ; ip: string
+           ; ip: Ipaddr.V4.t
            ; port: int }
 
   let code_of_int = function
@@ -95,7 +99,7 @@ module Response = struct
       | _ -> raise (Invalid_argument "Response.of_cstruct")
     in
     { code = code_of_int (get_header_command cstruct)
-    ; ip = Socket.inet_ntoa (get_header_ip cstruct)
+    ; ip = Ipaddr.V4.of_int32 (get_header_ip cstruct)
     ; port = get_header_port cstruct }
 
   let of_string str =
