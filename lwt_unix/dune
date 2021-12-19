@@ -1,0 +1,4 @@
+(library
+  (name lwt_socks4_unix)
+  (modules lwt_socks4_unix)
+  (libraries socks lwt.unix))
