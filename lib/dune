@@ -1,5 +1,6 @@
 (library
   (name socks)
+  (public_name socks)
   (modules socks4 socks)
   (libraries cstruct ppx_cstruct lwt ipaddr ipaddr-cstruct)
   (preprocess (pps ppx_cstruct)))
