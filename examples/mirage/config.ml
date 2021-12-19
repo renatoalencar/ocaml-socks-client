@@ -1,6 +1,7 @@
 open Mirage
 
-let packages = [ package "socks" ]
+let packages = [ package "socks"
+               ; package "mirage_socks4" ]
 
 let main = foreign ~packages "Unikernel.Main" (stackv4 @-> job)
 
