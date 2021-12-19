@@ -1,4 +1,5 @@
 open Lwt.Infix
+open Socks
 
 let (let*) a f = a >>= f
 
@@ -59,7 +60,7 @@ let connect ~proxy:t hostname port =
   Lwt_result.map (fun (fd, _) -> fd) response
 
 (* Bind is supposed to work, but is not exposed yet *)
-let bind ~proxy:t hostname port =
+let _bind ~proxy:t hostname port =
   let response =
     match t with
     | `SOCKS4 (proxy_addr, proxy_port) -> acquire_socks4 Socks4.Request.Bind proxy_addr proxy_port hostname port

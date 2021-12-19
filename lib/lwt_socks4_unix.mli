@@ -1,6 +1,6 @@
 
 val connect:
-  proxy:Socks4.proxy ->
+  proxy:Socks.Socks4.proxy ->
   string ->
   int ->
   (Lwt_unix.file_descr, string) Lwt_result.t

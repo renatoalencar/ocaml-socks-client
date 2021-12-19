@@ -15,6 +15,7 @@ depends: [
   "lwt"
   "dune"
   "ipaddr"
+  "ipaddr-cstruct"
   "alcotest" {with-test}
 
   # should be temporary

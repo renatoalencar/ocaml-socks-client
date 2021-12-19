@@ -1,3 +1,4 @@
+open Socks
 
 let test_socks4_connect_ip_address () =
   let request = Socks4.Request.connect (`IPv4 (Ipaddr.V4.of_string_exn "192.168.0.1")) 80 in
