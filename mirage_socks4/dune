@@ -1,3 +1,4 @@
 (library
   (name mirage_socks4)
+  (modules mirage_socks4)
   (libraries socks mirage-stack))
