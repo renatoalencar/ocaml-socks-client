@@ -1,4 +1,0 @@
-(executable
-  (name main)
-  (libraries  lwt_socks4_unix lwt lwt.unix tls.lwt ca-certs)
-  (optional))
