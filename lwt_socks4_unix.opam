@@ -1,0 +1,25 @@
+opam-version: "2.0"
+name: "lwt_socks4_unix"
+version: "0.0.1"
+synopsis: "One-line description"
+description: ""
+maintainer: "Name <email>"
+authors: "Name <email>"
+license: ""
+homepage: ""
+bug-reports: ""
+dev-repo: ""
+depends: [
+  "cstruct"
+  "ppx_cstruct"
+  "lwt"
+  "dune"
+  "ipaddr"
+  "ipaddr-cstruct"
+  "alcotest" {with-test}
+
+  # should be temporary
+  "ca-certs"
+  "tls"
+]
+build: [ "dune" "build" "-p" name "-j" jobs ]
