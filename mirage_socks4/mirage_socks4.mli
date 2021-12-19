@@ -1,5 +1,5 @@
 
-module Make (S: Mirage_stack.V4) : sig
+module Make (S: Tcpip.Stack.V4) : sig
   type t
 
   type error =

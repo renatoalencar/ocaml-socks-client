@@ -1,7 +1,7 @@
 open Socks
 open Lwt.Infix
 
-module Make (S: Mirage_stack.V4) = struct
+module Make (S: Tcpip.Stack.V4) = struct
   type t = { tcpv4: S.TCPV4.t
            ; proxy: Ipaddr.V4.t * int }
 

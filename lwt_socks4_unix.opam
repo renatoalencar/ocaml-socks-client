@@ -10,6 +10,7 @@ homepage: ""
 bug-reports: ""
 dev-repo: ""
 depends: [
+  "socks"
   "cstruct"
   "ppx_cstruct"
   "lwt"
