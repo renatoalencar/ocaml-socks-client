@@ -17,9 +17,5 @@ depends: [
   "ipaddr"
   "ipaddr-cstruct"
   "alcotest" {with-test}
-
-  # should be temporary
-  "ca-certs"
-  "tls"
 ]
 build: [ "dune" "build" "-p" name "-j" jobs ]

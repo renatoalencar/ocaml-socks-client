@@ -11,16 +11,8 @@ bug-reports: ""
 dev-repo: ""
 depends: [
   "socks"
-  "cstruct"
-  "ppx_cstruct"
   "lwt"
   "dune"
   "ipaddr"
-  "ipaddr-cstruct"
-  "alcotest" {with-test}
-
-  # should be temporary
-  "ca-certs"
-  "tls"
 ]
 build: [ "dune" "build" "-p" name "-j" jobs ]

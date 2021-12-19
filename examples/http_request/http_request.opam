@@ -1,5 +1,5 @@
 opam-version: "2.0"
-name: "mirage_socks4"
+name: "http_request"
 version: "0.0.1"
 synopsis: "One-line description"
 description: ""
@@ -10,10 +10,8 @@ homepage: ""
 bug-reports: ""
 dev-repo: ""
 depends: [
-  "socks"
-  "lwt"
-  "dune"
-  "ipaddr"
-  "mirage-stack" 
+  "lwt_socks4_unix"
+  "ca-certs"
+  "tls"
 ]
 build: [ "dune" "build" "-p" name "-j" jobs ]
