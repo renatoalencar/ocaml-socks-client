@@ -17,19 +17,9 @@ let socks4_port =
   let doc = Key.Arg.info ~doc:"SOCKS4 port." [ "socks4-port" ] in
   Key.(create "socks4_port" Arg.(opt int 1080 doc))
 
-let tls_key_fingerprint =
-  let doc = Key.Arg.info ~doc:"The fingerprint of the TLS key." [ "tls-key-fingerprint" ] in
-  Key.(create "tls_key_fingerprint" Arg.(opt (some string) None doc))
-
-let tls_cert_fingerprint =
-  let doc = Key.Arg.info ~doc:"The fingerprint of the TLS certificate." [ "tls-cert-fingerprint" ] in
-  Key.(create "tls_cert_fingerprint" Arg.(opt (some string) None doc))
-
 let main = foreign
   ~keys:[ Key.abstract socks4_hostname
-        ; Key.abstract socks4_port
-        ; Key.abstract tls_key_fingerprint
-        ; Key.abstract tls_cert_fingerprint ]
+        ; Key.abstract socks4_port ]
   ~packages "Unikernel.Main"
   (random @-> time @-> mclock @-> pclock @-> stackv4v6 @-> job)
 
