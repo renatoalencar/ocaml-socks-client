@@ -166,7 +166,7 @@ module Main
 
   let start _random _time _mclock _pclock stackv4v6 =
     let happy_eyeballs = Happy_eyeballs.create stackv4v6 in
-    Paf.init ~port:8080 (Stack.tcp stackv4v6) >>= fun t ->
+    Paf.init ~port:(Key_gen.port ()) (Stack.tcp stackv4v6) >>= fun t ->
     let service = Paf.http_service ~error_handler
       (request_handler happy_eyeballs) in
     let `Initialized th = Paf.serve service t in th

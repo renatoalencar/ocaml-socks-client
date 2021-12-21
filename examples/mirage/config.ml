@@ -17,9 +17,14 @@ let socks4_port =
   let doc = Key.Arg.info ~doc:"SOCKS4 port." [ "socks4-port" ] in
   Key.(create "socks4_port" Arg.(opt int 1080 doc))
 
+let port =
+  let doc = Key.Arg.info ~doc:"Port of the HTTP proxy." [ "port" ] in
+  Key.(create "port" Arg.(opt int 8080 doc))
+
 let main = foreign
   ~keys:[ Key.abstract socks4_hostname
-        ; Key.abstract socks4_port ]
+        ; Key.abstract socks4_port
+        ; Key.abstract port ]
   ~packages "Unikernel.Main"
   (random @-> time @-> mclock @-> pclock @-> stackv4v6 @-> job)
 
