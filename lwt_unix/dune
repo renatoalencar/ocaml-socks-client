@@ -1,4 +1,4 @@
 (library
-  (name lwt_socks4_unix)
-  (public_name lwt_socks4_unix)
-  (libraries socks lwt.unix))
+ (name lwt_socks4_unix)
+ (public_name lwt_socks4_unix)
+ (libraries socks lwt.unix))

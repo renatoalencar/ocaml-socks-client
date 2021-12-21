@@ -14,6 +14,6 @@ depends: [
   "lwt"
   "dune"
   "ipaddr"
-  "mirage-stack" 
+  "mirage-flow"
 ]
 build: [ "dune" "build" "-p" name "-j" jobs ]

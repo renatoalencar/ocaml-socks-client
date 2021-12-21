@@ -1,15 +1,5 @@
+module Make (Flow: Mirage_flow.S) : sig
+  include Mirage_flow.S
 
-module Make (S: Tcpip.Stack.V4) : sig
-  type t
-
-  type error =
-    [ `Connection of S.TCPV4.error
-    | `Read of S.TCPV4.error
-    | `Eof
-    | `Write of S.TCPV4.write_error
-    | `Socks4 of Socks.Socks4.Response.code ]
-
-  val make : S.t -> Ipaddr.V4.t * int -> t
-
-  val connect : t -> Socks.Socks4.Request.addr -> int -> (S.TCPV4.flow, error) Lwt_result.t
+  val client_of_flow : Flow.flow -> Socks.Socks4.Request.addr -> int -> (flow, write_error) result Lwt.t
 end
