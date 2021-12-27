@@ -13,5 +13,6 @@ depends: [
   "lwt_socks4_unix"
   "ca-certs"
   "tls"
+  "happy-eyeballs-lwt"
 ]
 build: [ "dune" "build" "-p" name "-j" jobs ]

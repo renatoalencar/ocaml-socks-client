@@ -1,9 +1,11 @@
+open Socks.Socks4
 
-val connect:
-  proxy:Socks.Socks4.proxy ->
-  string ->
+type error = [ `Eof | `Socks4 of Socks.Socks4.Response.code ]
+
+val connect :
+  Lwt_unix.file_descr ->
+  Request.addr ->
   int ->
-  (Lwt_unix.file_descr, string) Lwt_result.t
-(** [connect proxy hostname port] establishes a connection the
-    proxy and initializes by sending and validating the response. *)
-
+  (unit, error) Lwt_result.t
+(** [connect fd hostname port] establishes a connection to [hostname]
+    on [port] through a proxy that should be already connected on [fd]. *)
