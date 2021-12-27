@@ -1,4 +1,4 @@
 (library
-  (name mirage_socks4)
-  (public_name mirage_socks4)
-  (libraries socks mirage-stack))
+ (name mirage_socks4)
+ (public_name mirage_socks4)
+ (libraries socks mirage-flow))

@@ -72,6 +72,9 @@ module Response : sig
     | `UserIdNotMatching ]
   (** The response code from the request previously submitted. *)
 
+  val pp : code Fmt.t
+  (** Pretty-printer of {!val:code}. *)
+
   type t = { code: code
            ; ip: Ipaddr.V4.t
            ; port: int }

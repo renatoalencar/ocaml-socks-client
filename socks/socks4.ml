@@ -74,6 +74,12 @@ module Response = struct
     | `RequestFailed
     | `RequestRejectedIdentd
     | `UserIdNotMatching ]
+
+  let pp ppf = function
+    | `RequestGranted -> Fmt.pf ppf "Request granted"
+    | `RequestFailed -> Fmt.pf ppf "Request failed"
+    | `RequestRejectedIdentd -> Fmt.pf ppf "Request rejected Identd"
+    | `UserIdNotMatching -> Fmt.pf ppf "User ID not matching"
  
   type t = { code: code
            ; ip: Ipaddr.V4.t
